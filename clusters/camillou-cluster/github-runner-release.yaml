@@ -11,7 +11,7 @@ spec:
   interval: 5m
   chart:
     spec:
-      chart: actions-runner-controller/actions-runner-controller
+      chart: actions-runner-controller
       sourceRef:
         kind: HelmRepository
         name: actions-runner-controller
