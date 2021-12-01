@@ -4,11 +4,6 @@ metadata:
   name: github-runner
   namespace: default
 spec:
-  valuesFrom:
-    - kind: Secret
-      name: github-runner-secret
-      valuesKey: github_token
-      targetPath: values.authSecret
   interval: 5m
   chart:
     spec:
