@@ -1,0 +1,32 @@
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: github-runner
+  namespace: default
+spec:
+  valuesFrom:
+    - kind: Secret
+      name: github-runner-secret
+      targetPath: values.authSecret
+  interval: 5m
+  chart:
+    spec:
+      chart: actions-runner-controller/actions-runner-controller
+      sourceRef:
+        kind: HelmRepository
+        name: actions-runner-controller
+        namespace: flux-system
+      interval: 1m
+  values:
+    replicaCount: 1
+    authSecret:
+      github_token: {}
+    resources:
+      {}
+      # TODO: add github actions resource limits
+      # limits:
+      #   cpu: 100m
+      #   memory: 128Mi
+      # requests:
+      #   cpu: 100m
+      #   memory: 128Mi
