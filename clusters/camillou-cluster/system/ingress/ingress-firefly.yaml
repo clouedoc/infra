@@ -1,0 +1,37 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: firefly-ingress
+  labels:
+    app: firefly-iii
+  annotations:
+    kubernetes.io/ingress.class: "traefik"
+    cert-manager.io/cluster-issuer: letsencrypt-production
+    traefik.ingress.kubernetes.io/router.middlewares: default-redirect-to-https@kubernetescrd
+spec:
+  rules:
+    - host: firefly.gravi.best
+      http:
+        paths:
+          - pathType: Prefix
+            path: "/"
+            backend:
+              service:
+                name: firefly-iii
+                port:
+                  number: 8080
+    - host: firefly-csv.gravi.best
+      http:
+        paths:
+          - pathType: Prefix
+            path: "/"
+            backend:
+              service:
+                name: firefly-iii-csv
+                port:
+                  number: 8080
+  tls:
+    - hosts:
+        - firefly-csv.gravi.best
+        - firefly.gravi.best
+      secretName: firefly-csv-ingress-cert
