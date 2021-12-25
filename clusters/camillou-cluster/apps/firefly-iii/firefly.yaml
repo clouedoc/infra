@@ -1,0 +1,61 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: firefly-iii
+  labels:
+    app: firefly-iii
+spec:
+  selector:
+    matchLabels:
+      app: firefly-iii
+      tier: frontend
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: firefly-iii
+        tier: frontend
+    spec:
+      containers:
+        - image: fireflyiii/core
+          name: firefly-iii
+          env:
+            - name: APP_ENV
+              value: "local"
+            - name: APP_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: firefly-iii-secrets
+                  key: app_key
+            - name: DB_HOST
+              value: firefly-iii-mysql
+            - name: DB_CONNECTION
+              value: mysql
+            - name: DB_DATABASE
+              value: "fireflyiii"
+            - name: DB_USERNAME
+              value: "root"
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: firefly-iii-secrets
+                  key: db_password
+            - name: TRUSTED_PROXIES
+              value: "**"
+          ports:
+            - containerPort: 8080
+              name: firefly-iii
+          volumeMounts:
+            - mountPath: "/var/www/html/firefly-iii/storage/upload"
+              name: firefly-iii-upload
+          imagePullPolicy: Always
+          resources:
+            limits:
+              memory: "1G"
+              cpu: "500m"
+      volumes:
+        - name: firefly-iii-upload
+          persistentVolumeClaim:
+            claimName: data-firefly-iii
