@@ -1,0 +1,72 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: whoami
+  namespace: default
+spec:
+  selector:
+    matchLabels:
+      app: whoami
+  template:
+    metadata:
+      labels:
+        app: whoami
+    spec:
+      containers:
+        - name: whoami
+          image: containous/whoami
+          resources:
+            limits:
+              memory: "128Mi"
+              cpu: "500m"
+          ports:
+            - containerPort: 80
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: whoami-service
+  namespace: default
+spec:
+  selector:
+    app: whoami
+  ports:
+    - port: 80
+      targetPort: 80
+
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: whoami-ingress
+  labels:
+    name: whoami-ingress
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-production
+
+spec:
+  rules:
+    - http:
+        paths:
+          - pathType: Prefix
+            path: /whoami
+            backend:
+              service:
+                name: whoami-service
+                port:
+                  number: 80
+    - host: whoami.gravi.best
+      http:
+        paths:
+          - pathType: Prefix
+            path: /
+            backend:
+              service:
+                name: whoami-service
+                port:
+                  number: 80
+  tls:
+    - hosts:
+        - whoami.gravi.best
+      secretName: whoami-ingress-cert

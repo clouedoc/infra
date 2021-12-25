@@ -1,0 +1,14 @@
+# referencing a middleware from Kubernetes CRD provider:
+# <middleware-namespace>-<middleware-name>@kubernetescrd
+# "traefik.ingress.kubernetes.io/router.middlewares": appspace-stripprefix@kubernetescrd
+apiVersion: traefik.containo.us/v1alpha1
+kind: Middleware
+metadata:
+  name: stripprefix
+  namespace: default
+spec:
+  stripPrefix:
+    prefixes:
+      - /whoami
+      - /syncthing
+      - /longhorn

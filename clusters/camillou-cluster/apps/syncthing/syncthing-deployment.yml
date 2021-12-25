@@ -1,0 +1,40 @@
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: syncthing
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: syncthing
+  template:
+    metadata:
+      labels:
+        app: syncthing
+    spec:
+      volumes:
+        - name: syncthing-data
+          persistentVolumeClaim:
+            claimName: syncthing-data
+      containers:
+        - name: syncthing
+          image: syncthing/syncthing:1.18
+          imagePullPolicy: IfNotPresent
+          resources:
+            limits:
+              memory: "1G"
+              cpu: "2"
+          volumeMounts:
+            - name: syncthing-data
+              mountPath: /var/syncthing
+          ports:
+            - name: ui-http
+              containerPort: 8384
+              protocol: TCP
+            - name: data-tcp
+              containerPort: 22000
+              protocol: TCP
+            - name: data-udp
+              containerPort: 22000
+              protocol: UDP

@@ -1,0 +1,38 @@
+apiVersion: helm.cattle.io/v1
+kind: HelmChartConfig
+metadata:
+  name: traefik
+  namespace: kube-system
+spec:
+  valuesContent: |-
+    ingressRoute:
+      dashboard:
+        enabled: true
+
+    deployment:
+      initContainers:
+        - name: volume-permissions
+          image: busybox:1.31.1
+          command: ["sh", "-c", "chmod -Rv 600 /data/*"]
+          volumeMounts:
+            - name: data
+              mountPath: /data
+
+    persistence:
+      enabled: true
+      name: data
+      accessMode: ReadWriteMany
+      size: 128Mi
+      storageClass: "ssd-replicated"
+      path: /data
+      annotations: {}
+
+    additionalArguments:
+      - "--certificatesresolvers.leresolver.acme.storage=/data/acme.json"
+      - "--certificatesresolvers.leresolver.acme.tlschallenge"
+      - "--certificatesresolvers.leresolver.acme.email=camille.eyries@gmail.com"
+      - "--certificatesresolvers.leresolver.acme.caserver=https://acme-staging-v02.api.letsencrypt.org/directory"
+
+# This chart enables:
+#   - the Traefik API dashboard
+#   - let's encrypt

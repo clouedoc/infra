@@ -1,0 +1,28 @@
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: longhorn-ingress
+  namespace: longhorn-system
+  labels:
+    name: longhorn-ingress
+  annotations:
+    traefik.ingress.kubernetes.io/router.middlewares: default-basic-auth@kubernetescrd,default-redirect-to-https@kubernetescrd
+    cert-manager.io/cluster-issuer: letsencrypt-production
+
+spec:
+  rules:
+    - host: hdd.gravi.best
+      http:
+        paths:
+          - pathType: Prefix
+            path: /
+            backend:
+              service:
+                name: longhorn-frontend
+                port:
+                  number: 80
+  tls:
+    - hosts:
+        - hdd.gravi.best
+      secretName: longhorn-ingress-cert
